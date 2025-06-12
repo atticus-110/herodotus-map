@@ -32,7 +32,7 @@
 <body>
   <div id="map"></div>
 
-  <!-- Leaflet JS (must load before any map code) -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
@@ -44,8 +44,8 @@
       attribution: '&copy; OpenStreetMap contributors'
     });
 
-    // Ancient-style map (parchment/watercolor look, no labels)
-   const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    // Ancient-style map with no labels, but clear coastlines
+    const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
       maxZoom: 18,
       attribution: '&copy; CartoDB'
     });
@@ -54,10 +54,10 @@
     const map = L.map('map', {
       center: [38, 25],
       zoom: 5,
-      layers: [modernMap] // default layer
+      layers: [modernMap] // default view
     });
 
-    // Add basemap switcher
+    // Add layer toggle
     const baseMaps = {
       "Modern Map": modernMap,
       "Ancient Map Style": ancientMap
@@ -66,7 +66,7 @@
 
     // === Markers & Regions ===
 
-    // Sardis marker
+    // Sardis marker with Herodotus story
     const sardis = L.marker([38.4746, 28.0428]).addTo(map);
     sardis.bindPopup(`
       <b>Sardis</b><br>
@@ -75,11 +75,11 @@
       – Candaules (last Heraclid king)<br>
       – Gyges (bodyguard who became king)<br><br>
       <i>Story:</i><br>
-      Gyges was forced by Candaules to view the queen naked. She discovered it, and offered Gyges a deadly choice. He killed Candaules and took the throne, founding the Mermnad dynasty.<br><br>
+      Candaules insisted Gyges look upon his queen without her knowledge. When the queen found out, she gave Gyges a choice: kill the king or die himself. Gyges killed Candaules and took the throne.<br><br>
       <i>Source:</i> Herodotus 1.8–1.14
     `);
 
-    // Lydia region polygon (approximate)
+    // Lydia region (approximate boundaries)
     const lydia = L.polygon([
       [38.9, 27.3],
       [38.7, 29.4],
@@ -93,9 +93,8 @@
       fillOpacity: 0.3
     }).addTo(map);
 
+    // Lydia popup and label
     lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and Croesus.");
-
-    // Lydia label
     lydia.bindTooltip("Lydia", {
       permanent: true,
       direction: "center",
