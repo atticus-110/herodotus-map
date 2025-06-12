@@ -207,7 +207,9 @@
       dashArray: "5,8",
       opacity: 0.7
     });
-    // Europa route line (blue, dashed)
+    ioGroup.addLayer(ioRoute);
+
+       // Europa route line (blue, dashed)
     const europaRoute = L.polyline([
       places.tyre.coords,
       places.crete.coords
@@ -217,7 +219,6 @@
       dashArray: "5,8",
       opacity: 0.7
     });
-    ioGroup.addLayer(ioRoute);
 
     // Sardis and Lydia for Gyges
     const sardisMarker = L.marker(places.sardis.coords).bindPopup(places.sardis.popupContent());
