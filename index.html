@@ -8,29 +8,92 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    #map {
-      height: 100vh;
-      width: 100vw;
-    }
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: sans-serif;
+  }
 
-    .region-label {
-      background: none;
-      border: none;
-      color: darkgoldenrod;
-      font-weight: bold;
-      font-size: 16px;
-      text-shadow: 1px 1px 2px white;
-    }
-  </style>
+  #container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  #sidebar {
+    width: 220px;
+    background: #f7f3e9;
+    padding: 10px;
+    overflow-y: auto;
+    border-right: 1px solid #ccc;
+  }
+
+  #sidebar h2 {
+    font-size: 18px;
+    margin-top: 0;
+  }
+
+  #sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  #sidebar li {
+    margin: 8px 0;
+  }
+
+  #sidebar a {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  #sidebar a:hover {
+    text-decoration: underline;
+  }
+
+  #map {
+    flex: 1;
+  }
+
+  .region-label {
+    background: none;
+    border: none;
+    color: darkgoldenrod;
+    font-weight: bold;
+    font-size: 16px;
+    text-shadow: 1px 1px 2px white;
+  }
+</style>
 </head>
 <body>
+  <div id="container">
+  <div id="sidebar">
+    <h2>Index</h2>
+    <button onclick="showAll()">Show All</button>
+    <ul>
+      <li><a href="#" onclick="focusOn('io')">Io</a></li>
+      <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
+    </ul>
+  </div>
+  <div id="container">
+  <div id="sidebar">
+    <h2>Index</h2>
+    <button onclick="showAll()">Show All</button>
+    <ul>
+      <li><a onclick="focusOn('io')">Io</a></li>
+      <li><a onclick="focusOn('gyges')">Gyges</a></li>
+      <!-- Add more characters or places here later -->
+    </ul>
+  </div>
   <div id="map"></div>
+</div>
+</div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -136,6 +199,61 @@
       direction: "center",
       className: "region-label"
     });
+
+    // === Layer Groups ===
+const gygesGroup = L.layerGroup().addTo(map);
+const ioGroup = L.layerGroup().addTo(map);
+
+// === Add features to each group ===
+// Gyges story
+const sardis = L.marker([38.4746, 28.0428]).bindPopup(`<strong>Sardis</strong><br>Capital of Lydia.<br>Herodotus 1.7`);
+sardis.addTo(gygesGroup);
+
+const lydia = L.polygon([[38.8, 27.5], [38.8, 28.5], [37.8, 28.5], [37.8, 27.5]], {
+  color: "gold",
+  fillColor: "#f0e68c",
+  fillOpacity: 0.3
+}).bindPopup("Lydia: Kingdom ruled by Candaules and then Gyges.<br>Herodotus 1.7");
+lydia.addTo(gygesGroup);
+
+// Io story
+const argos = L.marker([37.6333, 22.7333]).bindPopup(`<strong>Argos</strong><br>Home of Io.`);
+const memphis = L.marker([29.8492, 31.2544]).bindPopup(`<strong>Memphis</strong><br>Destination of Io in Egypt.`);
+
+const ioRoute = L.polyline([
+  [37.6333, 22.7333],
+  [29.8492, 31.2544]
+], {
+  color: "purple",
+  weight: 3,
+  dashArray: "5,8",
+  opacity: 0.7
+}).bindTooltip("Journey of Io");
+
+argos.addTo(ioGroup);
+memphis.addTo(ioGroup);
+ioRoute.addTo(ioGroup);
+
+// === Toggle functions ===
+function focusOn(character) {
+  // Remove all
+  map.removeLayer(ioGroup);
+  map.removeLayer(gygesGroup);
+
+  if (character === 'io') {
+    ioGroup.addTo(map);
+    map.fitBounds(ioGroup.getBounds());
+  } else if (character === 'gyges') {
+    gygesGroup.addTo(map);
+    map.fitBounds(gygesGroup.getBounds());
+  }
+}
+
+function showAll() {
+  map.addLayer(ioGroup);
+  map.addLayer(gygesGroup);
+  map.setView([38, 25], 5); // Reset to original view
+}
 
   </script>
 </body>
