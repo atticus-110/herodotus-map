@@ -275,4 +275,27 @@
       const firstPlaceKey = story.places[0];
       let latlng;
 
-      if (places[first
+      if (places[firstPlaceKey].coords) {
+        latlng = places[firstPlaceKey].coords;
+      } else if (places[firstPlaceKey].polygon) {
+        latlng = L.polygon(places[firstPlaceKey].polygon).getBounds().getCenter();
+      } else {
+        latlng = map.getCenter();
+      }
+
+      // Popup with summary + link to clear summary
+      L.popup({ maxWidth: 320 })
+        .setLatLng(latlng)
+        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}:</strong><br>${story.summary}<br><br><a href="#" onclick="clearStorySummary();return false;">Close</a>`)
+        .openOn(map);
+    }
+
+    function clearStorySummary() {
+      map.closePopup();
+    }
+
+    // Show all layers initially
+    showAll();
+  </script>
+</body>
+</html>
