@@ -207,6 +207,16 @@
       dashArray: "5,8",
       opacity: 0.7
     });
+    // Europa route line (blue, dashed)
+    const europaRoute = L.polyline([
+      places.tyre.coords,
+      places.crete.coords
+    ], {
+      color: "blue",
+      weight: 3,
+      dashArray: "5,8",
+      opacity: 0.7
+    });
     ioGroup.addLayer(ioRoute);
 
     // Sardis and Lydia for Gyges
@@ -229,24 +239,29 @@
 
     // Sidebar index functions
     function focusOn(character) {
-      // Remove all story layers
+    // Remove all story layers and route lines
       ioGroup.remove();
       gygesGroup.remove();
       europaGroup.remove();
-
+      map.removeLayer(ioRoute);
+      map.removeLayer(europaRoute);
+    
       if (character === 'io') {
         ioGroup.addTo(map);
         map.fitBounds(ioGroup.getBounds());
+        map.addLayer(ioRoute);  // show Io's route line
       } else if (character === 'gyges') {
         gygesGroup.addTo(map);
         map.fitBounds(gygesGroup.getBounds());
+        // no route line for Gyges
       } else if (character === 'europa') {
         europaGroup.addTo(map);
         map.fitBounds(europaGroup.getBounds());
+        map.addLayer(europaRoute);  // show Europa's route line
       }
-      // Update story popup content
-      showStory(character);
-    }
+
+  showStory(character);
+}
 
     function showAll() {
       ioGroup.addTo(map);
@@ -254,7 +269,10 @@
       europaGroup.addTo(map);
       map.setView([38, 25], 5);
       clearStorySummary();
+      map.removeLayer(ioRoute);
+      map.removeLayer(europaRoute);
     }
+
 
     // Show story summary popup for clicked character link in place popup
     function showStory(character) {
