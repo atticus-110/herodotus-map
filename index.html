@@ -45,9 +45,9 @@
     });
 
     // Ancient-style map (parchment/watercolor look, no labels)
-    const ancientMap = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
-      maxZoom: 16,
-      attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>'
+   const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      maxZoom: 18,
+      attribution: '&copy; CartoDB'
     });
 
     // Create map
