@@ -104,38 +104,38 @@
 </body>
 </html>
 
-// === IO STORY ===
-
-// Argos (Io's origin)
-const argos = L.marker([37.6333, 22.7333]).addTo(map);
-argos.bindPopup(`
-  <b>Argos</b><br>
-  The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
-  <i>Herodotus 1.1, 1.5</i>
-`);
-
-// Memphis, Egypt (Io's destination)
-const memphis = L.marker([29.8492, 31.2544]).addTo(map);
-memphis.bindPopup(`
-  <b>Egypt</b><br>
-  The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
-  <i>Herodotus 1.1, 1.5</i>
-`);
-
-// Dashed route from Argos to Egypt
-const ioRoute = L.polyline([
-  [37.6333, 22.7333],  // Argos
-  [29.8492, 31.2544]   // Memphis
-], {
-  color: "purple",
-  weight: 3,
-  dashArray: "5, 8",
-  opacity: 0.7
-}).addTo(map);
-
-// Route label
-ioRoute.bindTooltip("Journey of Io", {
-  permanent: true,
-  direction: "center",
-  className: "region-label"
-});
+    // === IO STORY ===
+    
+    // Argos (Io's origin)
+    const argos = L.marker([37.6333, 22.7333]).addTo(map);
+    argos.bindPopup(`
+      <b>Argos</b><br>
+      The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
+      <i>Herodotus 1.1, 1.5</i>
+    `);
+    
+    // Memphis, Egypt (Io's destination)
+    const memphis = L.marker([29.8492, 31.2544]).addTo(map);
+    memphis.bindPopup(`
+      <b>Egypt</b><br>
+      The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
+      <i>Herodotus 1.1, 1.5</i>
+    `);
+    
+    // Dashed route from Argos to Egypt
+    const ioRoute = L.polyline([
+      [37.6333, 22.7333],  // Argos
+      [29.8492, 31.2544]   // Memphis
+    ], {
+      color: "purple",
+      weight: 3,
+      dashArray: "5, 8",
+      opacity: 0.7
+    }).addTo(map);
+    
+    // Route label
+    ioRoute.bindTooltip("Journey of Io", {
+      permanent: true,
+      direction: "center",
+      className: "region-label"
+    });
