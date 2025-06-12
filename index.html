@@ -31,3 +31,18 @@
   </script>
 </body>
 </html>
+// Lydia region (approximate)
+const lydia = L.polygon([
+  [38.9, 27.3],  // north
+  [38.7, 29.4],  // northeast
+  [37.8, 29.4],  // southeast
+  [37.5, 28.0],  // south
+  [38.1, 26.8],  // southwest
+  [38.9, 27.3]   // close the shape
+], {
+  color: "goldenrod",
+  fillColor: "gold",
+  fillOpacity: 0.3
+}).addTo(map);
+
+lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and later Croesus.");
