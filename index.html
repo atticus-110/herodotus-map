@@ -5,6 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     body, html {
@@ -18,87 +19,10 @@
       width: 100vw;
     }
 
-    /* Style for region labels */
     .region-label {
       background: none;
       border: none;
       color: darkgoldenrod;
       font-weight: bold;
       font-size: 16px;
-      text-shadow: 1px 1px 2px white;
-    }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // Create the map
-    const map = L.map('map').setView([38, 25], 5);
-
-// Modern map with place names
-const modernMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '&copy; OpenStreetMap contributors'
-});
-
-// Ancient-style parchment map (Stamen Watercolor — accurate terrain, artistic look)
-const ancientMap = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
-  maxZoom: 16,
-  attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>'
-});
-
-// Create the map, starting with the modern map
-const map = L.map('map', {
-  center: [38, 25],
-  zoom: 5,
-  layers: [modernMap]
-});
-
-// Layer switcher
-const baseMaps = {
-  "Modern Map": modernMap,
-  "Ancient Map Style": ancientMap
-};
-
-L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
-
-    // Sardis marker (Gyges & Candaules)
-    const sardis = L.marker([38.4746, 28.0428]).addTo(map);
-    sardis.bindPopup(`
-      <b>Sardis</b><br>
-      Capital of Lydia.<br><br>
-      <i>People:</i><br>
-      – Candaules (last Heraclid king)<br>
-      – Gyges (bodyguard who became king)<br><br>
-      <i>Story:</i><br>
-      Gyges was forced by Candaules to view the queen naked. She discovered it, and offered Gyges a deadly choice. He killed Candaules and took the throne, founding the Mermnad dynasty.<br><br>
-      <i>Source:</i> Herodotus 1.8–1.14
-    `);
-
-    // Lydia region (approximate area)
-    const lydia = L.polygon([
-      [38.9, 27.3],
-      [38.7, 29.4],
-      [37.8, 29.4],
-      [37.5, 28.0],
-      [38.1, 26.8],
-      [38.9, 27.3]
-    ], {
-      color: "goldenrod",
-      fillColor: "gold",
-      fillOpacity: 0.3
-    }).addTo(map);
-
-    lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and Croesus.");
-
-    // Label for Lydia
-    lydia.bindTooltip("Lydia", {
-      permanent: true,
-      direction: "center",
-      className: "region-label"
-    }).openTooltip();
-  </script>
-</body>
-</html>
+      text-sha
