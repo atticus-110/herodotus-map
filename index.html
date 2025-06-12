@@ -7,254 +7,163 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Styles -->
   <style>
-  * {
-    box-sizing: border-box;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: sans-serif;
-  }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-  #container {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-  }
+    #container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
 
-  #sidebar {
-    width: 220px;
-    background: #f7f3e9;
-    padding: 10px;
-    overflow-y: auto;
-    border-right: 1px solid #ccc;
-  }
+    #sidebar {
+      width: 220px;
+      background: #f7f3e9;
+      padding: 10px;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+    }
 
-  #sidebar h2 {
-    font-size: 18px;
-    margin-top: 0;
-  }
+    #sidebar h2 {
+      font-size: 18px;
+      margin-top: 0;
+    }
 
-  #sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
 
-  #sidebar li {
-    margin: 8px 0;
-  }
+    #sidebar li {
+      margin: 8px 0;
+    }
 
-  #sidebar a {
-    color: #333;
-    text-decoration: none;
-    cursor: pointer;
-  }
+    #sidebar a {
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-  #sidebar a:hover {
-    text-decoration: underline;
-  }
+    #sidebar a:hover {
+      text-decoration: underline;
+    }
 
-  #map {
-    flex: 1;
-  }
+    #map {
+      flex: 1;
+    }
 
-  .region-label {
-    background: none;
-    border: none;
-    color: darkgoldenrod;
-    font-weight: bold;
-    font-size: 16px;
-    text-shadow: 1px 1px 2px white;
-  }
-</style>
+    .region-label {
+      background: none;
+      border: none;
+      color: darkgoldenrod;
+      font-weight: bold;
+      font-size: 16px;
+      text-shadow: 1px 1px 2px white;
+    }
+  </style>
 </head>
+
 <body>
   <div id="container">
-  <div id="sidebar">
-    <h2>Index</h2>
-    <button onclick="showAll()">Show All</button>
-    <ul>
-      <li><a href="#" onclick="focusOn('io')">Io</a></li>
-      <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
-    </ul>
+    <div id="sidebar">
+      <h2>Index</h2>
+      <button onclick="showAll()">Show All</button>
+      <ul>
+        <li><a onclick="focusOn('io')">Io</a></li>
+        <li><a onclick="focusOn('gyges')">Gyges</a></li>
+      </ul>
+    </div>
+    <div id="map"></div>
   </div>
-  <div id="container">
-  <div id="sidebar">
-    <h2>Index</h2>
-    <button onclick="showAll()">Show All</button>
-    <ul>
-      <li><a onclick="focusOn('io')">Io</a></li>
-      <li><a onclick="focusOn('gyges')">Gyges</a></li>
-      <!-- Add more characters or places here later -->
-    </ul>
-  </div>
-  <div id="map"></div>
-</div>
-</div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // === Base maps ===
+    // === Base Maps ===
+    const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> Ancient-style',
+    });
 
-    // Modern map with labels
-    const modernMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
+    const modernMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     });
 
-    // Ancient-style map with no labels, but clear coastlines
-    const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18,
-      attribution: '&copy; CartoDB'
-    });
-
-    // Create map
+    // === Create Map ===
     const map = L.map('map', {
       center: [38, 25],
       zoom: 5,
-      layers: [ancientMap] // default view
-    });
-
-    // Add layer toggle
-    const baseMaps = {
-      "Modern Map": modernMap,
-      "Ancient Map Style": ancientMap
-    };
-    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
-
-    // === Sardis and Lydia ===
-
-    // Sardis marker with Herodotus story
-    const sardis = L.marker([38.4746, 28.0428]).addTo(map);
-    sardis.bindPopup(`
-      <b>Sardis</b><br>
-      Capital of Lydia.<br><br>
-      <i>People:</i><br>
-      – Candaules (last Heraclid king)<br>
-      – Gyges (bodyguard who became king)<br><br>
-      <i>Story:</i><br>
-      Candaules insisted Gyges look upon his queen without her knowledge. When the queen found out, she gave Gyges a choice: kill the king or die himself. Gyges killed Candaules and took the throne.<br><br>
-      <i>Source:</i> Herodotus 1.8–1.14
-    `);
-
-    // Lydia region (approximate boundaries)
-    const lydia = L.polygon([
-      [38.9, 27.3],
-      [38.7, 29.4],
-      [37.8, 29.4],
-      [37.5, 28.0],
-      [38.1, 26.8],
-      [38.9, 27.3]
-    ], {
-      color: "goldenrod",
-      fillColor: "gold",
-      fillOpacity: 0.3
-    }).addTo(map);
-
-    // Lydia label
-    lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and Croesus.");
-    lydia.bindTooltip("Lydia", {
-      permanent: true,
-      direction: "center",
-      className: "region-label"
-    }).openTooltip();
-
-    // === IO STORY ===
-
-    // Argos (Io's origin)
-    const argos = L.marker([37.6333, 22.7333]).addTo(map);
-    argos.bindPopup(`
-      <b>Argos</b><br>
-      The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
-      <i>Herodotus 1.1, 1.5</i>
-    `);
-
-    // Memphis, Egypt (Io's destination)
-    const memphis = L.marker([29.8492, 31.2544]).addTo(map);
-    memphis.bindPopup(`
-      <b>Egypt</b><br>
-      The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
-      <i>Herodotus 1.1, 1.5</i>
-    `);
-
-    // Dashed route from Argos to Egypt
-    const ioRoute = L.polyline([
-      [37.6333, 22.7333],  // Argos
-      [29.8492, 31.2544]   // Memphis
-    ], {
-      color: "purple",
-      weight: 3,
-      dashArray: "5, 8",
-      opacity: 0.7
-    }).addTo(map);
-
-    // Route label
-    ioRoute.bindTooltip("Journey of Io", {
-      permanent: true,
-      direction: "center",
-      className: "region-label"
+      layers: [ancientMap]
     });
 
     // === Layer Groups ===
-const gygesGroup = L.layerGroup().addTo(map);
-const ioGroup = L.layerGroup().addTo(map);
+    const gygesGroup = L.layerGroup().addTo(map);
+    const ioGroup = L.layerGroup().addTo(map);
 
-// === Add features to each group ===
-// Gyges story
-const sardis = L.marker([38.4746, 28.0428]).bindPopup(`<strong>Sardis</strong><br>Capital of Lydia.<br>Herodotus 1.7`);
-sardis.addTo(gygesGroup);
+    // === Gyges Story ===
+    const sardis = L.marker([38.4746, 28.0428]).bindPopup(`<strong>Sardis</strong><br>Capital of Lydia.<br>Herodotus 1.7`);
+    sardis.addTo(gygesGroup);
 
-const lydia = L.polygon([[38.8, 27.5], [38.8, 28.5], [37.8, 28.5], [37.8, 27.5]], {
-  color: "gold",
-  fillColor: "#f0e68c",
-  fillOpacity: 0.3
-}).bindPopup("Lydia: Kingdom ruled by Candaules and then Gyges.<br>Herodotus 1.7");
-lydia.addTo(gygesGroup);
+    const lydia = L.polygon([
+      [38.8, 27.5],
+      [38.8, 28.5],
+      [37.8, 28.5],
+      [37.8, 27.5]
+    ], {
+      color: "gold",
+      fillColor: "#f0e68c",
+      fillOpacity: 0.3
+    }).bindPopup("Lydia: Kingdom ruled by Candaules and then Gyges.<br>Herodotus 1.7");
+    lydia.addTo(gygesGroup);
 
-// Io story
-const argos = L.marker([37.6333, 22.7333]).bindPopup(`<strong>Argos</strong><br>Home of Io.`);
-const memphis = L.marker([29.8492, 31.2544]).bindPopup(`<strong>Memphis</strong><br>Destination of Io in Egypt.`);
+    // === Io Story ===
+    const argos = L.marker([37.6333, 22.7333]).bindPopup(`<strong>Argos</strong><br>Home of Io.`);
+    const memphis = L.marker([29.8492, 31.2544]).bindPopup(`<strong>Memphis</strong><br>Destination of Io in Egypt.`);
 
-const ioRoute = L.polyline([
-  [37.6333, 22.7333],
-  [29.8492, 31.2544]
-], {
-  color: "purple",
-  weight: 3,
-  dashArray: "5,8",
-  opacity: 0.7
-}).bindTooltip("Journey of Io");
+    const ioRoute = L.polyline([
+      [37.6333, 22.7333],
+      [29.8492, 31.2544]
+    ], {
+      color: "purple",
+      weight: 3,
+      dashArray: "5,8",
+      opacity: 0.7
+    }).bindTooltip("Journey of Io");
 
-argos.addTo(ioGroup);
-memphis.addTo(ioGroup);
-ioRoute.addTo(ioGroup);
+    argos.addTo(ioGroup);
+    memphis.addTo(ioGroup);
+    ioRoute.addTo(ioGroup);
 
-// === Toggle functions ===
-function focusOn(character) {
-  // Remove all
-  map.removeLayer(ioGroup);
-  map.removeLayer(gygesGroup);
+    // === Sidebar Control Functions ===
+    function focusOn(character) {
+      map.removeLayer(ioGroup);
+      map.removeLayer(gygesGroup);
 
-  if (character === 'io') {
-    ioGroup.addTo(map);
-    map.fitBounds(ioGroup.getBounds());
-  } else if (character === 'gyges') {
-    gygesGroup.addTo(map);
-    map.fitBounds(gygesGroup.getBounds());
-  }
-}
+      if (character === 'io') {
+        ioGroup.addTo(map);
+        map.fitBounds(ioGroup.getBounds());
+      } else if (character === 'gyges') {
+        gygesGroup.addTo(map);
+        map.fitBounds(gygesGroup.getBounds());
+      }
+    }
 
-function showAll() {
-  map.addLayer(ioGroup);
-  map.addLayer(gygesGroup);
-  map.setView([38, 25], 5); // Reset to original view
-}
-
+    function showAll() {
+      map.addLayer(ioGroup);
+      map.addLayer(gygesGroup);
+      map.setView([38, 25], 5);
+    }
   </script>
 </body>
 </html>
