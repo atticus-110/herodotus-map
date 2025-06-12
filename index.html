@@ -107,6 +107,13 @@
       layers: [ancientMap]
     });
 
+    // === Add Layer Control ===
+    const baseMaps = {
+      "Ancient Style": ancientMap,
+      "Modern Map": modernMap
+    };
+    L.control.layers(baseMaps).addTo(map);
+
     // === Layer Groups ===
     const gygesGroup = L.layerGroup().addTo(map);
     const ioGroup = L.layerGroup().addTo(map);
@@ -116,10 +123,12 @@
     sardis.addTo(gygesGroup);
 
     const lydia = L.polygon([
-      [38.8, 27.5],
-      [38.8, 28.5],
-      [37.8, 28.5],
-      [37.8, 27.5]
+      [38.4, 27.0],
+      [38.9, 27.5],
+      [38.7, 28.4],
+      [38.0, 28.2],
+      [37.7, 27.5],
+      [38.0, 27.0]
     ], {
       color: "gold",
       fillColor: "#f0e68c",
