@@ -25,4 +25,82 @@
       color: darkgoldenrod;
       font-weight: bold;
       font-size: 16px;
-      text-sha
+      text-shadow: 1px 1px 2px white;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS (must load before any map code) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // === Base maps ===
+
+    // Modern map with labels
+    const modernMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    });
+
+    // Ancient-style map (parchment/watercolor look, no labels)
+    const ancientMap = L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+      maxZoom: 16,
+      attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>'
+    });
+
+    // Create map
+    const map = L.map('map', {
+      center: [38, 25],
+      zoom: 5,
+      layers: [modernMap] // default layer
+    });
+
+    // Add basemap switcher
+    const baseMaps = {
+      "Modern Map": modernMap,
+      "Ancient Map Style": ancientMap
+    };
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+    // === Markers & Regions ===
+
+    // Sardis marker
+    const sardis = L.marker([38.4746, 28.0428]).addTo(map);
+    sardis.bindPopup(`
+      <b>Sardis</b><br>
+      Capital of Lydia.<br><br>
+      <i>People:</i><br>
+      – Candaules (last Heraclid king)<br>
+      – Gyges (bodyguard who became king)<br><br>
+      <i>Story:</i><br>
+      Gyges was forced by Candaules to view the queen naked. She discovered it, and offered Gyges a deadly choice. He killed Candaules and took the throne, founding the Mermnad dynasty.<br><br>
+      <i>Source:</i> Herodotus 1.8–1.14
+    `);
+
+    // Lydia region polygon (approximate)
+    const lydia = L.polygon([
+      [38.9, 27.3],
+      [38.7, 29.4],
+      [37.8, 29.4],
+      [37.5, 28.0],
+      [38.1, 26.8],
+      [38.9, 27.3]
+    ], {
+      color: "goldenrod",
+      fillColor: "gold",
+      fillOpacity: 0.3
+    }).addTo(map);
+
+    lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and Croesus.");
+
+    // Lydia label
+    lydia.bindTooltip("Lydia", {
+      permanent: true,
+      direction: "center",
+      className: "region-label"
+    }).openTooltip();
+  </script>
+</body>
+</html>
