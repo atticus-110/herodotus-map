@@ -54,7 +54,7 @@
     const map = L.map('map', {
       center: [38, 25],
       zoom: 5,
-      layers: [modernMap] // default view
+      layers: [ancientMap] // default view
     });
 
     // Add layer toggle
@@ -64,7 +64,7 @@
     };
     L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
 
-    // === Markers & Regions ===
+    // === Sardis and Lydia ===
 
     // Sardis marker with Herodotus story
     const sardis = L.marker([38.4746, 28.0428]).addTo(map);
@@ -93,19 +93,16 @@
       fillOpacity: 0.3
     }).addTo(map);
 
-    // Lydia popup and label
+    // Lydia label
     lydia.bindPopup("<b>Region: Lydia</b><br>Kingdom of Candaules, Gyges, and Croesus.");
     lydia.bindTooltip("Lydia", {
       permanent: true,
       direction: "center",
       className: "region-label"
     }).openTooltip();
-  </script>
-</body>
-</html>
 
     // === IO STORY ===
-    
+
     // Argos (Io's origin)
     const argos = L.marker([37.6333, 22.7333]).addTo(map);
     argos.bindPopup(`
@@ -113,7 +110,7 @@
       The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
       <i>Herodotus 1.1, 1.5</i>
     `);
-    
+
     // Memphis, Egypt (Io's destination)
     const memphis = L.marker([29.8492, 31.2544]).addTo(map);
     memphis.bindPopup(`
@@ -121,7 +118,7 @@
       The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain.<br><br>
       <i>Herodotus 1.1, 1.5</i>
     `);
-    
+
     // Dashed route from Argos to Egypt
     const ioRoute = L.polyline([
       [37.6333, 22.7333],  // Argos
@@ -132,10 +129,14 @@
       dashArray: "5, 8",
       opacity: 0.7
     }).addTo(map);
-    
+
     // Route label
     ioRoute.bindTooltip("Journey of Io", {
       permanent: true,
       direction: "center",
       className: "region-label"
     });
+
+  </script>
+</body>
+</html>
