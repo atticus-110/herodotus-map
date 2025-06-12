@@ -8,7 +8,6 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <!-- Styles -->
   <style>
     * {
       box-sizing: border-box;
@@ -62,15 +61,6 @@
     #map {
       flex: 1;
     }
-
-    .region-label {
-      background: none;
-      border: none;
-      color: darkgoldenrod;
-      font-weight: bold;
-      font-size: 16px;
-      text-shadow: 1px 1px 2px white;
-    }
   </style>
 </head>
 
@@ -82,6 +72,7 @@
       <ul>
         <li><a onclick="focusOn('io')">Io</a></li>
         <li><a onclick="focusOn('gyges')">Gyges</a></li>
+        <li><a onclick="focusOn('europa')">Europa</a></li>
       </ul>
     </div>
     <div id="map"></div>
@@ -91,7 +82,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    // === Base Maps ===
+    // Base maps
     const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> Voyager No Labels',
     });
@@ -100,64 +91,148 @@
       attribution: '&copy; OpenStreetMap contributors'
     });
 
-    // === Create Map ===
+    // Create map
     const map = L.map('map', {
       center: [38, 25],
       zoom: 5,
       layers: [ancientMap]
     });
 
-    // === Add Layer Control ===
+    // Layer control
     const baseMaps = {
       "Ancient Style": ancientMap,
       "Modern Map": modernMap
     };
     L.control.layers(baseMaps).addTo(map);
 
-    // === Layer Groups ===
-    const gygesGroup = L.layerGroup().addTo(map);
-    const ioGroup = L.layerGroup().addTo(map);
+    // Layer groups per story
+    const ioGroup = L.layerGroup();
+    const gygesGroup = L.layerGroup();
+    const europaGroup = L.layerGroup();
 
-    // === Gyges Story ===
-    const sardis = L.marker([38.4746, 28.0428]).bindPopup(`<strong>Sardis</strong><br>Capital of Lydia.<br>Herodotus 1.7`);
-    sardis.addTo(gygesGroup);
+    // Story data
+    const stories = {
+      io: {
+        summary: "The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain. Herodotus 1.1, 1.5",
+        places: ['argos', 'memphis']
+      },
+      gyges: {
+        summary: "Gyges was the bodyguard of King Candaules of Lydia and eventually took over his throne. Herodotus 1.7",
+        places: ['sardis', 'lydia']
+      },
+      europa: {
+        summary: "Some of the Greeks landed in Tyre and abducted the king's daughter, Europa. These men may have been Cretans. Herodotus 1.2",
+        places: ['tyre', 'crete']
+      }
+    };
 
-    const lydia = L.polygon([
-      [38.4, 27.0],
-      [38.9, 27.5],
-      [38.7, 28.4],
-      [38.0, 28.2],
-      [37.7, 27.5],
-      [38.0, 27.0]
-    ], {
-      color: "gold",
-      fillColor: "#f0e68c",
-      fillOpacity: 0.3
-    }).bindPopup("Lydia: Kingdom ruled by Candaules and then Gyges.<br>Herodotus 1.7");
-    lydia.addTo(gygesGroup);
+    // Place data with related characters and popup content
+    const places = {
+      argos: {
+        coords: [37.6333, 22.7333],
+        name: "Argos",
+        characters: ['Io'],
+        popupContent: function() {
+          return `<strong>Argos</strong><br>` + characterLinks(['Io']);
+        }
+      },
+      memphis: {
+        coords: [29.8492, 31.2544],
+        name: "Memphis",
+        characters: ['Io'],
+        popupContent: function() {
+          return `<strong>Memphis</strong><br>` + characterLinks(['Io']);
+        }
+      },
+      sardis: {
+        coords: [38.4746, 28.0428],
+        name: "Sardis",
+        characters: ['Gyges'],
+        popupContent: function() {
+          return `<strong>Sardis</strong><br>` + characterLinks(['Gyges']);
+        }
+      },
+      lydia: {
+        polygon: [
+          [38.4, 27.0],
+          [38.9, 27.5],
+          [38.7, 28.4],
+          [38.0, 28.2],
+          [37.7, 27.5],
+          [38.0, 27.0]
+        ],
+        name: "Lydia",
+        characters: ['Gyges'],
+        popupContent: function() {
+          return `<strong>Lydia</strong><br>` + characterLinks(['Gyges']);
+        }
+      },
+      tyre: {
+        coords: [33.2708, 35.2034],
+        name: "Tyre",
+        characters: ['Europa'],
+        popupContent: function() {
+          return `<strong>Tyre</strong><br>` + characterLinks(['Europa']);
+        }
+      },
+      crete: {
+        coords: [35.2401, 24.8093],
+        name: "Crete",
+        characters: ['Europa'],
+        popupContent: function() {
+          return `<strong>Crete</strong><br>` + characterLinks(['Europa']);
+        }
+      }
+    };
 
-    // === Io Story ===
-    const argos = L.marker([37.6333, 22.7333]).bindPopup(`<strong>Argos</strong><br>Home of Io.`);
-    const memphis = L.marker([29.8492, 31.2544]).bindPopup(`<strong>Memphis</strong><br>Destination of Io in Egypt.`);
+    // Helper function: create clickable links for characters in popup
+    function characterLinks(charArray) {
+      return 'Related characters:<br>' + charArray.map(ch => `<a href="#" onclick="showStory('${ch.toLowerCase()}')">${ch}</a>`).join('<br>');
+    }
 
+    // Add places to groups and map
+    // Argos and Memphis for Io
+    const argosMarker = L.marker(places.argos.coords).bindPopup(places.argos.popupContent());
+    const memphisMarker = L.marker(places.memphis.coords).bindPopup(places.memphis.popupContent());
+    ioGroup.addLayer(argosMarker);
+    ioGroup.addLayer(memphisMarker);
+
+    // Io route line (purple, dashed), only added to group, not to map yet
     const ioRoute = L.polyline([
-      [37.6333, 22.7333],
-      [29.8492, 31.2544]
+      places.argos.coords,
+      places.memphis.coords
     ], {
       color: "purple",
       weight: 3,
       dashArray: "5,8",
       opacity: 0.7
-    }).bindTooltip("Journey of Io");
+    });
+    ioGroup.addLayer(ioRoute);
 
-    argos.addTo(ioGroup);
-    memphis.addTo(ioGroup);
-    ioRoute.addTo(ioGroup);
+    // Sardis and Lydia for Gyges
+    const sardisMarker = L.marker(places.sardis.coords).bindPopup(places.sardis.popupContent());
+    const lydiaPolygon = L.polygon(places.lydia.polygon, {
+      color: "gold",
+      fillColor: "#f0e68c",
+      fillOpacity: 0.3
+    }).bindPopup(places.lydia.popupContent());
 
-    // === Sidebar Control Functions ===
+    gygesGroup.addLayer(sardisMarker);
+    gygesGroup.addLayer(lydiaPolygon);
+
+    // Tyre and Crete for Europa
+    const tyreMarker = L.marker(places.tyre.coords).bindPopup(places.tyre.popupContent());
+    const creteMarker = L.marker(places.crete.coords).bindPopup(places.crete.popupContent());
+
+    europaGroup.addLayer(tyreMarker);
+    europaGroup.addLayer(creteMarker);
+
+    // Sidebar index functions
     function focusOn(character) {
-      map.removeLayer(ioGroup);
-      map.removeLayer(gygesGroup);
+      // Remove all story layers
+      ioGroup.remove();
+      gygesGroup.remove();
+      europaGroup.remove();
 
       if (character === 'io') {
         ioGroup.addTo(map);
@@ -165,14 +240,51 @@
       } else if (character === 'gyges') {
         gygesGroup.addTo(map);
         map.fitBounds(gygesGroup.getBounds());
+      } else if (character === 'europa') {
+        europaGroup.addTo(map);
+        map.fitBounds(europaGroup.getBounds());
       }
+      // Update story popup content
+      showStory(character);
     }
 
     function showAll() {
-      map.addLayer(ioGroup);
-      map.addLayer(gygesGroup);
+      ioGroup.addTo(map);
+      gygesGroup.addTo(map);
+      europaGroup.addTo(map);
       map.setView([38, 25], 5);
+      clearStorySummary();
     }
+
+    // Show story summary popup for clicked character link in place popup
+    function showStory(character) {
+      const story = stories[character];
+      if (!story) return;
+
+      // Popup with story summary at center of first place linked to that story
+      const firstPlaceKey = story.places[0];
+      let latlng;
+
+      if (places[firstPlaceKey].coords) {
+        latlng = places[firstPlaceKey].coords;
+      } else if (places[firstPlaceKey].polygon) {
+        // If polygon, get center
+        latlng = L.polygon(places[firstPlaceKey].polygon).getBounds().getCenter();
+      }
+
+      // Open a popup with the summary
+      L.popup({ maxWidth: 400 })
+        .setLatLng(latlng)
+        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+        .openOn(map);
+    }
+
+    function clearStorySummary() {
+      map.closePopup();
+    }
+
+    // Initially show all
+    showAll();
   </script>
 </body>
 </html>
