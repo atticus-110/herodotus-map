@@ -9,11 +9,9 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
@@ -88,9 +86,9 @@
       <h2>Index</h2>
       <button onclick="showAll()">Show All</button>
       <ul>
-        <li><a onclick="focusOn('io')">Io</a></li>
-        <li><a onclick="focusOn('gyges')">Gyges</a></li>
-        <li><a onclick="focusOn('europa')">Europa</a></li>
+        <li><a href="#" onclick="focusOn('io')">Io</a></li>
+        <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
+        <li><a href="#" onclick="focusOn('europa')">Europa</a></li>
       </ul>
     </div>
     <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
@@ -105,11 +103,7 @@
       const sidebar = document.getElementById('sidebar');
       const toggle = document.getElementById('toggleSidebar');
       sidebar.classList.toggle('collapsed');
-      if (sidebar.classList.contains('collapsed')) {
-        toggle.style.left = '10px';
-      } else {
-        toggle.style.left = '250px';
-      }
+      toggle.style.left = sidebar.classList.contains('collapsed') ? '10px' : '250px';
     }
 
     const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
@@ -152,21 +146,9 @@
     };
 
     const places = {
-      argos: {
-        coords: [37.6333, 22.7333],
-        name: "Argos",
-        characters: ['Io']
-      },
-      memphis: {
-        coords: [29.8492, 31.2544],
-        name: "Memphis",
-        characters: ['Io']
-      },
-      sardis: {
-        coords: [38.4746, 28.0428],
-        name: "Sardis",
-        characters: ['Gyges']
-      },
+      argos: { coords: [37.6333, 22.7333], name: "Argos", characters: ['Io'] },
+      memphis: { coords: [29.8492, 31.2544], name: "Memphis", characters: ['Io'] },
+      sardis: { coords: [38.4746, 28.0428], name: "Sardis", characters: ['Gyges'] },
       lydia: {
         polygon: [
           [38.4, 27.0], [38.9, 27.5], [38.7, 28.4], [38.0, 28.2], [37.7, 27.5], [38.0, 27.0]
@@ -175,20 +157,13 @@
         name: "Lydia",
         characters: ['Gyges']
       },
-      tyre: {
-        coords: [33.2708, 35.2034],
-        name: "Tyre",
-        characters: ['Europa']
-      },
-      crete: {
-        coords: [35.2401, 24.8093],
-        name: "Crete",
-        characters: ['Europa']
-      }
+      tyre: { coords: [33.2708, 35.2034], name: "Tyre", characters: ['Europa'] },
+      crete: { coords: [35.2401, 24.8093], name: "Crete", characters: ['Europa'] }
     };
 
     function characterLinks(charArray) {
-      return 'Related characters:<br>' + charArray.map(ch => `<a href="#" onclick="focusOn('${ch.toLowerCase()}')">${ch}</a>`).join('<br>');
+      return 'Related characters:<br>' + charArray.map(ch =>
+        `<a href="#" onclick="focusOn('${ch.toLowerCase()}')">${ch}</a>`).join('<br>');
     }
 
     function createLabel(placeKey, isRegion = false) {
@@ -199,7 +174,7 @@
         iconSize: null
       });
       const coords = place.coords || place.center;
-      return L.marker(coords, { icon }).bindPopup(`<strong>${place.name}</strong><br>` + characterLinks(place.characters));
+      return L.marker(coords, { icon }).bindPopup(`<strong>${place.name}</strong><br>${characterLinks(place.characters)}`);
     }
 
     const ioRoute = L.polyline([
@@ -225,41 +200,49 @@
     europaGroup.addLayer(createLabel('crete'));
 
     function focusOn(character) {
-      ioGroup.remove(); gygesGroup.remove(); europaGroup.remove();
-      map.removeLayer(ioRoute); map.removeLayer(europaRoute);
+      // Clear all
+      map.eachLayer(layer => {
+        if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
+      });
 
       if (character === 'io') {
-        ioGroup.addTo(map); map.fitBounds(ioGroup.getBounds());
+        ioGroup.addTo(map);
+        ioRoute.addTo(map);
+        map.fitBounds(ioGroup.getBounds());
       } else if (character === 'gyges') {
-        gygesGroup.addTo(map); map.fitBounds(gygesGroup.getBounds());
+        gygesGroup.addTo(map);
+        map.fitBounds(gygesGroup.getBounds());
       } else if (character === 'europa') {
-        europaGroup.addTo(map); map.fitBounds(europaGroup.getBounds());
+        europaGroup.addTo(map);
+        europaRoute.addTo(map);
+        map.fitBounds(europaGroup.getBounds());
       }
 
       showStory(character);
     }
 
     function showAll() {
-      ioGroup.addTo(map); gygesGroup.addTo(map); europaGroup.addTo(map);
+      map.eachLayer(layer => {
+        if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
+      });
+
+      ioGroup.addTo(map);
+      gygesGroup.addTo(map);
+      europaGroup.addTo(map);
       map.setView([38, 25], 5);
       clearStorySummary();
-      map.removeLayer(ioRoute); map.removeLayer(europaRoute);
     }
 
     function showStory(character) {
       const story = stories[character];
       if (!story) return;
-
-      const firstPlaceKey = story.places[0];
-      let latlng = places[firstPlaceKey].coords || L.polygon(places[firstPlaceKey].polygon).getBounds().getCenter();
+      const firstPlace = story.places[0];
+      const latlng = places[firstPlace].coords || L.polygon(places[firstPlace].polygon).getBounds().getCenter();
 
       L.popup({ maxWidth: 400 })
         .setLatLng(latlng)
         .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
         .openOn(map);
-
-      if (character === 'io') map.addLayer(ioRoute);
-      if (character === 'europa') map.addLayer(europaRoute);
     }
 
     function clearStorySummary() {
