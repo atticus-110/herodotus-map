@@ -32,18 +32,20 @@
       padding: 10px;
       overflow-y: auto;
       border-right: 1px solid #ccc;
-      transition: transform 0.3s ease;
+      transition: width 0.3s ease;
     }
 
     #sidebar.collapsed {
-      transform: translateX(-240px);
+      width: 0;
+      padding: 0;
+      overflow: hidden;
     }
 
     #toggleSidebar {
-      position: absolute;
-      left: 0;
+      position: fixed;
+      left: 10px;
       top: 10px;
-      z-index: 1000;
+      z-index: 1001;
       background: #f7f3e9;
       border: 1px solid #ccc;
       padding: 4px 8px;
@@ -69,7 +71,7 @@
       border-radius: 6px;
       font-size: 16px;
       font-weight: bold;
-      color: #666;
+      color: #aaa;
       pointer-events: auto;
       cursor: pointer;
     }
