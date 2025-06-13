@@ -32,7 +32,7 @@
       padding: 10px;
       overflow-y: auto;
       border-right: 1px solid #ccc;
-      transition: width 0.3s ease;
+      transition: width 0.3s ease, padding 0.3s ease;
     }
 
     #sidebar.collapsed {
@@ -42,14 +42,19 @@
     }
 
     #toggleSidebar {
-      position: fixed;
-      left: 10px;
+      position: absolute;
+      left: 250px;
       top: 10px;
       z-index: 1001;
       background: #f7f3e9;
       border: 1px solid #ccc;
       padding: 4px 8px;
       cursor: pointer;
+      transition: left 0.3s ease;
+    }
+
+    #sidebar.collapsed + #toggleSidebar {
+      left: 10px;
     }
 
     #map {
@@ -69,16 +74,15 @@
       background-color: rgba(255, 255, 255, 0.5);
       padding: 4px 8px;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
-      color: #aaa;
+      color: #bbb;
       pointer-events: auto;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
   <div id="container">
     <div id="sidebar">
       <h2>Index</h2>
@@ -89,6 +93,7 @@
         <li><a onclick="focusOn('europa')">Europa</a></li>
       </ul>
     </div>
+    <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
     <div id="map"></div>
   </div>
 
@@ -98,7 +103,13 @@
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('toggleSidebar');
       sidebar.classList.toggle('collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        toggle.style.left = '10px';
+      } else {
+        toggle.style.left = '250px';
+      }
     }
 
     const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
@@ -218,11 +229,11 @@
       map.removeLayer(ioRoute); map.removeLayer(europaRoute);
 
       if (character === 'io') {
-        ioGroup.addTo(map); map.fitBounds(ioGroup.getBounds()); map.addLayer(ioRoute);
+        ioGroup.addTo(map); map.fitBounds(ioGroup.getBounds());
       } else if (character === 'gyges') {
         gygesGroup.addTo(map); map.fitBounds(gygesGroup.getBounds());
       } else if (character === 'europa') {
-        europaGroup.addTo(map); map.fitBounds(europaGroup.getBounds()); map.addLayer(europaRoute);
+        europaGroup.addTo(map); map.fitBounds(europaGroup.getBounds());
       }
 
       showStory(character);
