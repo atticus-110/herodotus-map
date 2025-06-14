@@ -287,7 +287,7 @@
         .openOn(map);
     }
     
-    function showStory(character) {
+   function showStory(character) {
       const story = stories[character];
       if (!story) return;
     
@@ -303,15 +303,6 @@
       });
     }
 
-    
-      setTimeout(() => {
-        L.popup({ maxWidth: 400 })
-          .setLatLng(coords)
-          .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
-          .openOn(map);
-      }, 300); // slight delay to ensure map has finished zooming
-    }
-    
     // Initial population
     populatePlaceList();
     
