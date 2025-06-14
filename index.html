@@ -42,10 +42,10 @@
       overflow: hidden;
     }
 
-   #toggleSidebar {
+    #toggleSidebar {
       position: absolute;
       left: 10px;
-      top: 140px; /* moved further below zoom buttons */
+      top: 140px;
       z-index: 1001;
       background: #f7f3e9;
       border: 1px solid #ccc;
@@ -53,9 +53,10 @@
       cursor: pointer;
     }
 
-
     #map {
       flex: 1;
+      height: 100%; /* ✅ Required for Leaflet to render */
+      background: lightgray; /* Optional: helps you visually confirm map container is showing */
     }
 
     .place-label {
@@ -221,7 +222,6 @@
     europaGroup.addLayer(createLabel('crete'));
 
     function focusOn(character) {
-      // Remove all layers except base map
       map.eachLayer(layer => {
         if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
       });
@@ -256,7 +256,6 @@
       map.closePopup();
     }
 
-    // Populate the place index list
     function populatePlaceList() {
       const list = document.getElementById('placeList');
       list.innerHTML = '';
@@ -266,8 +265,7 @@
         list.appendChild(li);
       });
     }
-    
-    // Search filter
+
     function filterPlaces() {
       const query = document.getElementById('searchBox').value.toLowerCase();
       const listItems = document.querySelectorAll('#placeList li');
@@ -275,8 +273,7 @@
         li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
     }
-    
-    // Jump to individual place
+
     function jumpToPlace(key) {
       const place = places[key];
       const coords = place.coords || place.center;
@@ -286,15 +283,15 @@
         .setContent(`<strong>${place.name}</strong><br>` + characterLinks(place.characters))
         .openOn(map);
     }
-    
-   function showStory(character) {
+
+    function showStory(character) {
       const story = stories[character];
       if (!story) return;
-    
+
       const firstPlaceKey = story.places[0];
       const place = places[firstPlaceKey];
       const coords = place.coords || place.center;
-    
+
       map.once('moveend', () => {
         L.popup({ maxWidth: 400 })
           .setLatLng(coords)
@@ -303,9 +300,7 @@
       });
     }
 
-    // Initial population
     populatePlaceList();
-    
     showAll();
   </script>
 </body>
