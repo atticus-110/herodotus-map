@@ -4,59 +4,28 @@
   <title>Herodotus Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: sans-serif;
     }
-
     #container {
       display: flex;
       height: 100vh;
-      width: 100vw;
     }
-
     #sidebar {
       width: 240px;
       background: #f7f3e9;
       padding: 10px;
       overflow-y: auto;
       border-right: 1px solid #ccc;
-      transition: width 0.3s ease, padding 0.3s ease;
-      z-index: 1000;
     }
-
-    #sidebar.collapsed {
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    #toggleSidebar {
-      position: absolute;
-      left: 10px;
-      top: 140px;
-      z-index: 1001;
-      background: #f7f3e9;
-      border: 1px solid #ccc;
-      padding: 4px 8px;
-      cursor: pointer;
-    }
-
     #map {
       flex: 1;
     }
-
     .place-label {
       background-color: rgba(255, 255, 255, 0.7);
       padding: 2px 6px;
@@ -65,7 +34,6 @@
       pointer-events: auto;
       cursor: pointer;
     }
-
     .region-label {
       background-color: rgba(255, 255, 255, 0.5);
       padding: 4px 8px;
@@ -76,229 +44,231 @@
       pointer-events: auto;
       cursor: pointer;
     }
+    #toggleSidebar {
+      position: absolute;
+      top: 140px;
+      left: 10px;
+      z-index: 1000;
+      background: #f7f3e9;
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="container">
-    <div id="sidebar">
-      <h2>Index</h2>
-      <input type="text" id="searchBox" placeholder="Search..." oninput="filterList()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
-      <button onclick="showAll()">Show All</button>
-      <ul id="storyLinks">
-        <li><a href="#" onclick="focusOn('io')">Io</a></li>
-        <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
-        <li><a href="#" onclick="focusOn('europa')">Europa</a></li>
-      </ul>
-      <h3>Places</h3>
-      <ul id="placeList">
-        <!-- Dynamically filled -->
-      </ul>
-    </div>
-    <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
-    <div id="map"></div>
+<div id="container">
+  <div id="sidebar">
+    <h2>Index</h2>
+    <input type="text" id="searchBox" oninput="filterList()" placeholder="Search..." style="width: 100%; padding: 6px;" />
+    <button onclick="showAll()">Show All</button>
+    <ul id="storyLinks">
+      <li><a href="#" onclick="focusOn('io')">Io</a></li>
+      <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
+      <li><a href="#" onclick="focusOn('europa')">Europa</a></li>
+    </ul>
+    <h3>Places</h3>
+    <ul id="placeList"></ul>
   </div>
+  <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
+  <div id="map"></div>
+</div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+  }
 
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('collapsed');
+  const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png');
+  const modernMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+  const map = L.map('map', {
+    center: [38, 25],
+    zoom: 5,
+    layers: [ancientMap]
+  });
+  L.control.layers({ "Ancient Style": ancientMap, "Modern": modernMap }).addTo(map);
+
+  const ioGroup = L.layerGroup();
+  const gygesGroup = L.layerGroup();
+  const europaGroup = L.layerGroup();
+
+  const stories = {
+    io: {
+      summary: "The Persians say that Io, daughter of King Inachus, was kidnapped by Phoenician merchants and taken to Egypt. Herodotus 1.1, 1.5",
+      places: ['argos', 'memphis']
+    },
+    gyges: {
+      summary: "Gyges was the bodyguard of King Candaules of Lydia and eventually took over his throne. Herodotus 1.7",
+      places: ['sardis', 'lydia']
+    },
+    europa: {
+      summary: "The Greeks abducted Europa from Tyre and brought her to Crete. Herodotus 1.2",
+      places: ['tyre', 'crete']
     }
+  };
 
-    const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> Voyager No Labels',
+  const places = {
+    argos: {
+      coords: [37.6333, 22.7333],
+      name: "Argos",
+      characters: ["Io"]
+    },
+    memphis: {
+      coords: [29.8492, 31.2544],
+      name: "Memphis",
+      characters: ["Io"]
+    },
+    sardis: {
+      coords: [38.4746, 28.0428],
+      name: "Sardis",
+      characters: ["Gyges"]
+    },
+    lydia: {
+      polygon: [
+        [38.4, 27.0], [38.9, 27.5], [38.7, 28.4], [38.0, 28.2], [37.7, 27.5], [38.0, 27.0]
+      ],
+      center: [38.4, 27.7],
+      name: "Lydia",
+      characters: ["Gyges"]
+    },
+    tyre: {
+      coords: [33.2708, 35.2034],
+      name: "Tyre",
+      characters: ["Europa"]
+    },
+    crete: {
+      coords: [35.2401, 24.8093],
+      name: "Crete",
+      characters: ["Europa"]
+    },
+    egypt: {
+      polygon: [
+        [31.2, 29.8], [30.9, 32.2], [30.2, 32.6], [29.7, 31.3], [30.3, 29.9], [31.0, 29.5]
+      ],
+      center: [30.5, 31.2],
+      name: "Egypt",
+      characters: ["Io"]
+    }
+  };
+
+  function characterLinks(characters) {
+    return 'Related characters:<br>' + characters.map(c => `<a href="#" onclick="focusOn('${c.toLowerCase()}')">${c}</a>`).join('<br>');
+  }
+
+  function createLabel(key, isRegion = false) {
+    const place = places[key];
+    const icon = L.divIcon({
+      className: isRegion ? 'region-label' : 'place-label',
+      html: place.name,
+      iconSize: null
     });
+    const coords = place.coords || place.center;
+    return L.marker(coords, { icon }).bindPopup(`<strong>${place.name}</strong><br>${characterLinks(place.characters)}`);
+  }
 
-    const modernMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+  ioGroup.addLayer(createLabel('argos'));
+  ioGroup.addLayer(createLabel('memphis'));
+  ioGroup.addLayer(L.polyline([places.argos.coords, places.memphis.coords], {
+    color: 'purple', dashArray: '5,8', weight: 3, opacity: 0.7
+  }));
+
+  gygesGroup.addLayer(createLabel('sardis'));
+  gygesGroup.addLayer(L.polygon(places.lydia.polygon, {
+    color: "gold", fillColor: "#f0e68c", fillOpacity: 0.3
+  }));
+  gygesGroup.addLayer(createLabel('lydia', true));
+
+  europaGroup.addLayer(createLabel('tyre'));
+  europaGroup.addLayer(createLabel('crete'));
+  europaGroup.addLayer(L.polyline([places.tyre.coords, places.crete.coords], {
+    color: 'blue', dashArray: '5,8', weight: 3, opacity: 0.7
+  }));
+
+  // Add Egypt to Io’s group
+  ioGroup.addLayer(L.polygon(places.egypt.polygon, {
+    color: "green", fillColor: "#b0e0b0", fillOpacity: 0.3
+  }));
+  ioGroup.addLayer(createLabel('egypt', true));
+
+  function focusOn(character) {
+    map.eachLayer(layer => {
+      if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
     });
+    clearStorySummary();
 
-    const map = L.map('map', {
-      center: [38, 25],
-      zoom: 5,
-      layers: [ancientMap]
-    });
-
-    const baseMaps = {
-      "Ancient Style": ancientMap,
-      "Modern Map": modernMap
-    };
-    L.control.layers(baseMaps).addTo(map);
-
-    const ioGroup = L.layerGroup();
-    const gygesGroup = L.layerGroup();
-    const europaGroup = L.layerGroup();
-
-    const stories = {
-      io: {
-        summary: "The Persians say that Io, daughter of King Inachus, was kidnapped by Phoenician merchants and taken to Egypt. Herodotus 1.1, 1.5",
-        places: ['argos', 'memphis']
-      },
-      gyges: {
-        summary: "Gyges was the bodyguard of King Candaules of Lydia and eventually took over his throne. Herodotus 1.7",
-        places: ['sardis', 'lydia']
-      },
-      europa: {
-        summary: "The Greeks abducted Europa from Tyre and brought her to Crete. Herodotus 1.2",
-        places: ['tyre', 'crete']
-      }
-    };
-
-    const places = {
-      argos: {
-        coords: [37.6333, 22.7333],
-        name: "Argos",
-        characters: ['Io']
-      },
-      memphis: {
-        coords: [29.8492, 31.2544],
-        name: "Memphis",
-        characters: ['Io']
-      },
-      sardis: {
-        coords: [38.4746, 28.0428],
-        name: "Sardis",
-        characters: ['Gyges']
-      },
-      lydia: {
-        polygon: [
-          [38.4, 27.0], [38.9, 27.5], [38.7, 28.4], [38.0, 28.2], [37.7, 27.5], [38.0, 27.0]
-        ],
-        center: [38.4, 27.7],
-        name: "Lydia",
-        characters: ['Gyges']
-      },
-      tyre: {
-        coords: [33.2708, 35.2034],
-        name: "Tyre",
-        characters: ['Europa']
-      },
-      crete: {
-        coords: [35.2401, 24.8093],
-        name: "Crete",
-        characters: ['Europa']
-      }
-    };
-
-    function characterLinks(charArray) {
-      return 'Related characters:<br>' + charArray.map(ch => `<a href="#" onclick="focusOn('${ch.toLowerCase()}')">${ch}</a>`).join('<br>');
-    }
-
-    function createLabel(placeKey, isRegion = false) {
-      const place = places[placeKey];
-      const icon = L.divIcon({
-        className: isRegion ? 'region-label' : 'place-label',
-        html: place.name,
-        iconSize: null
-      });
-      const coords = place.coords || place.center;
-      return L.marker(coords, { icon }).bindPopup(`<strong>${place.name}</strong><br>` + characterLinks(place.characters));
-    }
-
-    const ioRoute = L.polyline([
-      places.argos.coords,
-      places.memphis.coords
-    ], { color: "purple", weight: 3, dashArray: "5,8", opacity: 0.7 });
-
-    const europaRoute = L.polyline([
-      places.tyre.coords,
-      places.crete.coords
-    ], { color: "blue", weight: 3, dashArray: "5,8", opacity: 0.7 });
-
-    ioGroup.addLayer(createLabel('argos'));
-    ioGroup.addLayer(createLabel('memphis'));
-
-    gygesGroup.addLayer(createLabel('sardis'));
-    gygesGroup.addLayer(L.polygon(places.lydia.polygon, {
-      color: "gold", fillColor: "#f0e68c", fillOpacity: 0.3
-    }));
-    gygesGroup.addLayer(createLabel('lydia', true));
-
-    europaGroup.addLayer(createLabel('tyre'));
-    europaGroup.addLayer(createLabel('crete'));
-
-    function focusOn(character) {
-      map.eachLayer(layer => {
-        if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
-      });
-
-      clearStorySummary();
-
-      if (character === 'io') {
-        ioGroup.addTo(map);
-        ioRoute.addTo(map);
-        map.fitBounds(ioGroup.getBounds());
-      } else if (character === 'gyges') {
-        gygesGroup.addTo(map);
-        map.fitBounds(gygesGroup.getBounds());
-      } else if (character === 'europa') {
-        europaGroup.addTo(map);
-        europaRoute.addTo(map);
-        map.fitBounds(europaGroup.getBounds());
-      }
-
-      setTimeout(() => {
-        showStory(character);
-      }, 400); // Delay allows map to move before showing popup
-    }
-
-    function showAll() {
+    if (character === 'io') {
       ioGroup.addTo(map);
+      map.fitBounds(ioGroup.getBounds());
+    } else if (character === 'gyges') {
       gygesGroup.addTo(map);
+      map.fitBounds(gygesGroup.getBounds());
+    } else if (character === 'europa') {
       europaGroup.addTo(map);
-      clearStorySummary();
-      map.setView([38, 25], 5);
+      map.fitBounds(europaGroup.getBounds());
     }
 
-    function clearStorySummary() {
-      map.closePopup();
-    }
+    map.once('moveend', () => {
+      showStory(character);
+    });
+  }
 
-    function showStory(character) {
-      const story = stories[character];
-      if (!story) return;
-      const firstPlaceKey = story.places[0];
-      const place = places[firstPlaceKey];
-      const coords = place.coords || place.center;
+  function showStory(character) {
+    const story = stories[character];
+    if (!story) return;
+    const firstKey = story.places[0];
+    const place = places[firstKey];
+    const coords = place.coords || place.center;
+    L.popup({ maxWidth: 400 })
+      .setLatLng(coords)
+      .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+      .openOn(map);
+  }
 
-      L.popup({ maxWidth: 400 })
-        .setLatLng(coords)
-        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
-        .openOn(map);
-    }
+  function showAll() {
+    map.eachLayer(layer => {
+      if (layer !== ancientMap && layer !== modernMap) map.removeLayer(layer);
+    });
+    ioGroup.addTo(map);
+    gygesGroup.addTo(map);
+    europaGroup.addTo(map);
+    clearStorySummary();
+    map.setView([38, 25], 5);
+  }
 
-    function populatePlaceList() {
-      const list = document.getElementById('placeList');
-      list.innerHTML = '';
-      Object.entries(places).forEach(([key, place]) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="#" onclick="jumpToPlace('${key}')">${place.name}</a>`;
-        list.appendChild(li);
-      });
-    }
+  function clearStorySummary() {
+    map.closePopup();
+  }
 
-    function jumpToPlace(key) {
-      const place = places[key];
-      const coords = place.coords || place.center;
-      map.setView(coords, 7);
-      L.popup({ maxWidth: 300 })
-        .setLatLng(coords)
-        .setContent(`<strong>${place.name}</strong><br>` + characterLinks(place.characters))
-        .openOn(map);
-    }
+  function populatePlaceList() {
+    const ul = document.getElementById('placeList');
+    ul.innerHTML = '';
+    Object.entries(places).forEach(([key, p]) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="#" onclick="jumpToPlace('${key}')">${p.name}</a>`;
+      ul.appendChild(li);
+    });
+  }
 
-    function filterList() {
-      const query = document.getElementById('searchBox').value.toLowerCase();
-      document.querySelectorAll('#placeList li, #storyLinks li').forEach(li => {
-        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
-      });
-    }
+  function jumpToPlace(key) {
+    const place = places[key];
+    const coords = place.coords || place.center;
+    map.setView(coords, 7);
+    L.popup()
+      .setLatLng(coords)
+      .setContent(`<strong>${place.name}</strong><br>${characterLinks(place.characters)}`)
+      .openOn(map);
+  }
 
-    // Initialize
-    populatePlaceList();
-    showAll();
-  </script>
+  function filterList() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    document.querySelectorAll('#placeList li, #storyLinks li').forEach(li => {
+      li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  populatePlaceList();
+  showAll();
+</script>
 </body>
 </html>
