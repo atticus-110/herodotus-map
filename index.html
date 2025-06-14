@@ -55,8 +55,6 @@
 
     #map {
       flex: 1;
-      height: 100%;
-      background: lightgray;
     }
 
     .place-label {
@@ -84,7 +82,7 @@
   <div id="container">
     <div id="sidebar">
       <h2>Index</h2>
-      <input type="text" id="searchBox" placeholder="Search..." oninput="filterIndex()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
+      <input type="text" id="searchBox" placeholder="Search..." oninput="filterList()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
       <button onclick="showAll()">Show All</button>
       <ul id="storyLinks">
         <li><a href="#" onclick="focusOn('io')">Io</a></li>
@@ -93,7 +91,7 @@
       </ul>
       <h3>Places</h3>
       <ul id="placeList">
-        <!-- Populated dynamically -->
+        <!-- Dynamically filled -->
       </ul>
     </div>
     <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
@@ -105,7 +103,8 @@
 
   <script>
     function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('collapsed');
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
     }
 
     const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
@@ -134,7 +133,7 @@
 
     const stories = {
       io: {
-        summary: "The Persians say that Io, daughter of King Inachus, was kidnapped along with some other women by Phoenician merchants, and taken to Egypt. The Phoenicians, however, claim that Io went willingly, being ashamed that she had become pregnant by the ship's captain. Herodotus 1.1, 1.5",
+        summary: "The Persians say that Io, daughter of King Inachus, was kidnapped by Phoenician merchants and taken to Egypt. Herodotus 1.1, 1.5",
         places: ['argos', 'memphis']
       },
       gyges: {
@@ -142,7 +141,7 @@
         places: ['sardis', 'lydia']
       },
       europa: {
-        summary: "Some of the Greeks landed in Tyre and abducted the king's daughter, Europa. These men may have been Cretans. Herodotus 1.2",
+        summary: "The Greeks abducted Europa from Tyre and brought her to Crete. Herodotus 1.2",
         places: ['tyre', 'crete']
       }
     };
@@ -240,21 +239,9 @@
         map.fitBounds(europaGroup.getBounds());
       }
 
-      showStory(character);
-    }
-
-    function showStory(character) {
-      const story = stories[character];
-      if (!story) return;
-
-      const firstPlaceKey = story.places[0];
-      const place = places[firstPlaceKey];
-      const coords = place.coords || place.center;
-
-      L.popup({ maxWidth: 400 })
-        .setLatLng(coords)
-        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
-        .openOn(map);
+      setTimeout(() => {
+        showStory(character);
+      }, 400); // Delay allows map to move before showing popup
     }
 
     function showAll() {
@@ -267,6 +254,19 @@
 
     function clearStorySummary() {
       map.closePopup();
+    }
+
+    function showStory(character) {
+      const story = stories[character];
+      if (!story) return;
+      const firstPlaceKey = story.places[0];
+      const place = places[firstPlaceKey];
+      const coords = place.coords || place.center;
+
+      L.popup({ maxWidth: 400 })
+        .setLatLng(coords)
+        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+        .openOn(map);
     }
 
     function populatePlaceList() {
@@ -289,22 +289,14 @@
         .openOn(map);
     }
 
-    function filterIndex() {
+    function filterList() {
       const query = document.getElementById('searchBox').value.toLowerCase();
-
-      // Filter story links
-      const storyLinks = document.querySelectorAll('#storyLinks li');
-      storyLinks.forEach(li => {
-        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
-      });
-
-      // Filter places
-      const placeItems = document.querySelectorAll('#placeList li');
-      placeItems.forEach(li => {
+      document.querySelectorAll('#placeList li, #storyLinks li').forEach(li => {
         li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
     }
 
+    // Initialize
     populatePlaceList();
     showAll();
   </script>
