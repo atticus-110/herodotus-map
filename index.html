@@ -42,16 +42,17 @@
       overflow: hidden;
     }
 
-    #toggleSidebar {
+   #toggleSidebar {
       position: absolute;
       left: 10px;
-      top: 90px; /* below zoom buttons */
+      top: 140px; /* moved further below zoom buttons */
       z-index: 1001;
       background: #f7f3e9;
       border: 1px solid #ccc;
       padding: 4px 8px;
       cursor: pointer;
     }
+
 
     #map {
       flex: 1;
@@ -82,11 +83,16 @@
   <div id="container">
     <div id="sidebar">
       <h2>Index</h2>
+      <input type="text" id="searchBox" placeholder="Search places..." oninput="filterPlaces()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
       <button onclick="showAll()">Show All</button>
-      <ul>
+      <ul id="storyLinks">
         <li><a href="#" onclick="focusOn('io')">Io</a></li>
         <li><a href="#" onclick="focusOn('gyges')">Gyges</a></li>
         <li><a href="#" onclick="focusOn('europa')">Europa</a></li>
+      </ul>
+      <h3>Places</h3>
+      <ul id="placeList">
+        <!-- Will populate dynamically -->
       </ul>
     </div>
     <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
@@ -263,6 +269,57 @@
       map.closePopup();
     }
 
+    // Populate the place index list
+    function populatePlaceList() {
+      const list = document.getElementById('placeList');
+      list.innerHTML = '';
+      Object.entries(places).forEach(([key, place]) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="#" onclick="jumpToPlace('${key}')">${place.name}</a>`;
+        list.appendChild(li);
+      });
+    }
+    
+    // Search filter
+    function filterPlaces() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
+      const listItems = document.querySelectorAll('#placeList li');
+      listItems.forEach(li => {
+        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+    }
+    
+    // Jump to individual place
+    function jumpToPlace(key) {
+      const place = places[key];
+      const coords = place.coords || place.center;
+      map.setView(coords, 7);
+      L.popup({ maxWidth: 300 })
+        .setLatLng(coords)
+        .setContent(`<strong>${place.name}</strong><br>` + characterLinks(place.characters))
+        .openOn(map);
+    }
+    
+    // Fix story popup visibility
+    function showStory(character) {
+      const story = stories[character];
+      if (!story) return;
+    
+      const firstPlaceKey = story.places[0];
+      const place = places[firstPlaceKey];
+      const coords = place.coords || place.center;
+    
+      setTimeout(() => {
+        L.popup({ maxWidth: 400 })
+          .setLatLng(coords)
+          .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+          .openOn(map);
+      }, 300); // slight delay to ensure map has finished zooming
+    }
+    
+    // Initial population
+    populatePlaceList();
+    
     showAll();
   </script>
 </body>
