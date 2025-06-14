@@ -252,17 +252,20 @@
       map.setView([38, 25], 5);
     }
 
-    function showStory(character) {
+   function showStory(character) {
       const story = stories[character];
       if (!story) return;
-
+    
       const firstPlaceKey = story.places[0];
-      const coords = places[firstPlaceKey].coords || places[firstPlaceKey].center;
-
-      L.popup({ maxWidth: 400 })
-        .setLatLng(coords)
-        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
-        .openOn(map);
+      const place = places[firstPlaceKey];
+      const coords = place.coords || place.center;
+    
+      map.once('moveend', () => {
+        L.popup({ maxWidth: 400 })
+          .setLatLng(coords)
+          .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+          .openOn(map);
+      });
     }
 
     function clearStorySummary() {
