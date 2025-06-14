@@ -55,8 +55,8 @@
 
     #map {
       flex: 1;
-      height: 100%; /* ✅ Required for Leaflet to render */
-      background: lightgray; /* Optional: helps you visually confirm map container is showing */
+      height: 100%;
+      background: lightgray;
     }
 
     .place-label {
@@ -84,7 +84,7 @@
   <div id="container">
     <div id="sidebar">
       <h2>Index</h2>
-      <input type="text" id="searchBox" placeholder="Search places..." oninput="filterPlaces()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
+      <input type="text" id="searchBox" placeholder="Search..." oninput="filterIndex()" style="width: 100%; padding: 6px; margin-bottom: 10px;" />
       <button onclick="showAll()">Show All</button>
       <ul id="storyLinks">
         <li><a href="#" onclick="focusOn('io')">Io</a></li>
@@ -93,7 +93,7 @@
       </ul>
       <h3>Places</h3>
       <ul id="placeList">
-        <!-- Will populate dynamically -->
+        <!-- Populated dynamically -->
       </ul>
     </div>
     <div id="toggleSidebar" onclick="toggleSidebar()">☰</div>
@@ -105,8 +105,7 @@
 
   <script>
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('collapsed');
+      document.getElementById('sidebar').classList.toggle('collapsed');
     }
 
     const ancientMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
@@ -244,6 +243,20 @@
       showStory(character);
     }
 
+    function showStory(character) {
+      const story = stories[character];
+      if (!story) return;
+
+      const firstPlaceKey = story.places[0];
+      const place = places[firstPlaceKey];
+      const coords = place.coords || place.center;
+
+      L.popup({ maxWidth: 400 })
+        .setLatLng(coords)
+        .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
+        .openOn(map);
+    }
+
     function showAll() {
       ioGroup.addTo(map);
       gygesGroup.addTo(map);
@@ -266,14 +279,6 @@
       });
     }
 
-    function filterPlaces() {
-      const query = document.getElementById('searchBox').value.toLowerCase();
-      const listItems = document.querySelectorAll('#placeList li');
-      listItems.forEach(li => {
-        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
-      });
-    }
-
     function jumpToPlace(key) {
       const place = places[key];
       const coords = place.coords || place.center;
@@ -284,19 +289,19 @@
         .openOn(map);
     }
 
-    function showStory(character) {
-      const story = stories[character];
-      if (!story) return;
+    function filterIndex() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
 
-      const firstPlaceKey = story.places[0];
-      const place = places[firstPlaceKey];
-      const coords = place.coords || place.center;
+      // Filter story links
+      const storyLinks = document.querySelectorAll('#storyLinks li');
+      storyLinks.forEach(li => {
+        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
 
-      map.once('moveend', () => {
-        L.popup({ maxWidth: 400 })
-          .setLatLng(coords)
-          .setContent(`<strong>${character.charAt(0).toUpperCase() + character.slice(1)}</strong><br>${story.summary}`)
-          .openOn(map);
+      // Filter places
+      const placeItems = document.querySelectorAll('#placeList li');
+      placeItems.forEach(li => {
+        li.style.display = li.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
     }
 
